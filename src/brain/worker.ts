@@ -16,8 +16,10 @@ import { MAGIC, FORMAT_VERSION, MSG, type ConnectomeMeta } from './types'
 //   neuron_class: u8[n]   (last; keeps i32/f32 arrays 4-byte aligned)
 
 // plasticity knobs
-const ETA = 0.1 // dopamine-gated Hebbian learning rate
+const ETA = 0.15 // dopamine-gated Hebbian learning rate
 const COMP = 0.5 // on reward, weaken the other action groups by ETA*COMP
+const PUNISH_SCALE = 0.2 // losses barely suppress behavior (dopamine-driven trading)
+const ACTION_ETA = 0.03 // process reward: the act of trading itself releases dopamine
 const INIT_SCALE = 1.0 // random init scale for cue->action synapses
 const W_MAX = 2.0
 const W_MIN = -2.0
@@ -385,8 +387,14 @@ self.onmessage = (e: MessageEvent) => {
       }
       case MSG.PUNISH: {
         const st = msg.state === 'up' || msg.state === 'down' ? msg.state : curState
-        if (plasticityOn) targetedPlasticity(st, msg.group, -1)
+        if (plasticityOn) targetedPlasticity(st, msg.group, -PUNISH_SCALE)
         punishBurst = BURST_STEPS
+        break
+      }
+      case MSG.TICK: {
+        const st = msg.state === 'up' || msg.state === 'down' ? msg.state : curState
+        if (plasticityOn) targetedPlasticity(st, msg.group, ACTION_ETA / ETA)
+        rewardBurst = Math.max(rewardBurst, 1)
         break
       }
       case 'setPlasticity':

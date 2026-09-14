@@ -81,6 +81,7 @@ for (let epoch = 0; epoch < EPOCHS; epoch++) {
   }
   const outcome =
     choice === 2 ? 'hold' : (choice === 0 && state === 'up') || (choice === 1 && state === 'down') ? 'correct' : 'wrong'
+  if (choice !== 2) post({ type: 'tick', group: choice, state })
   if (outcome === 'correct') {
     post({ type: 'reward', group: choice, state })
     nCorrect++
@@ -98,7 +99,7 @@ for (let epoch = 0; epoch < EPOCHS; epoch++) {
     const overall = 100 * nCorrect / (epoch + 1)
     const active = nCorrect + nWrong > 0 ? 100 * nCorrect / (nCorrect + nWrong) : 0
     console.log(
-      `e${String(epoch).padStart(3)} ${state} overall=${overall.toFixed(0)}% active=${active.toFixed(0)}% win50=${(100 * c / w.length).toFixed(0)}% B=${gr[0].toFixed(1)} S=${gr[1].toFixed(1)} H=${gr[2].toFixed(1)} plast=${latestStats ? latestStats.plasticity_updates : 0}`,
+      `e${String(epoch).padStart(3)} ${state} overall=${overall.toFixed(0)}% active=${active.toFixed(0)}% win50=${(100 * c / w.length).toFixed(0)}% tr50=${act} B=${gr[0].toFixed(1)} S=${gr[1].toFixed(1)} H=${gr[2].toFixed(1)} plast=${latestStats ? latestStats.plasticity_updates : 0}`,
     )
   }
 }

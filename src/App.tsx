@@ -146,6 +146,12 @@ export default function App() {
     const id = setInterval(() => {
       if (sim.paused || !brain.loaded || !brain.stats) return
       const { choice, outcome } = makeDecision(sim, brain.stats.group_rates)
+      if (choice !== 2) {
+        brain.tick(choice, sim.state)
+        sim.dopamine++
+        sim.lastNeuroKind = 'reward'
+        sim.lastNeuroTime = performance.now()
+      }
       if (outcome === 'correct') {
         brain.reward(choice, sim.state)
         sim.dopamine++
@@ -267,6 +273,7 @@ export default function App() {
           <Row label="正解率（直近50回）" value={lastAcc ? `${(100 * lastAcc.overall).toFixed(0)}%` : '—'} />
           <Row label="買い・売りの正解率" value={lastAcc ? `${(100 * lastAcc.active).toFixed(0)}%` : '—'} />
           <Row label="正解 / 誤り / 保持" value={`${sim.nCorrect} / ${sim.nWrong} / ${sim.nHold}`} />
+          <Row label="売買（直近50秒）" value={`${sim.outcomes.filter((o) => o !== 'hold').length} / 50`} color="#f1c40f" />
           <div style={{ marginTop: 8 }}>
             <LearningCurve />
           </div>
@@ -279,6 +286,9 @@ export default function App() {
           <Row label="重み更新数（ΔW）" value={stats ? fmt(stats.plasticity_updates) : '—'} />
           <Row label="ドーパミン放出" value={String(sim.dopamine)} color="#2ecc71" />
           <Row label="GABA 放出" value={String(sim.gaba)} color="#e74c3c" />
+          <div style={{ color: '#567', fontSize: 11, marginTop: 4 }}>
+            行動報酬: 売買した瞬間にドーパミン（勝敗無視）· 損失の抑制は弱い → やめられない脳
+          </div>
           <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
               onClick={togglePlasticity}

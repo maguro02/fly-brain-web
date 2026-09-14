@@ -51,6 +51,7 @@ export const MSG = {
   STEP: 'step',
   REWARD: 'reward',
   PUNISH: 'punish',
+  TICK: 'tick',
   STATS: 'stats',
   ACTIVITY: 'activity',
   ERROR: 'error',

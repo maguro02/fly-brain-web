@@ -71,6 +71,10 @@ export class BrainClient {
     this.worker.postMessage({ type: MSG.PUNISH, group, state })
   }
 
+  tick(group: number, state?: 'up' | 'down') {
+    this.worker.postMessage({ type: MSG.TICK, group, state })
+  }
+
   setPlasticity(on: boolean) {
     this.worker.postMessage({ type: 'setPlasticity', on })
   }
